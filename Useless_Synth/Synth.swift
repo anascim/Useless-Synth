@@ -7,34 +7,46 @@
 //
 import AVFoundation
 
+let TWO_PI = Float.pi * 2
+
 class Synth {
     
+    let engine = AVAudioEngine()
+    let outputFormat: AVAudioFormat
+    let inputFormat: AVAudioFormat?
+    let sampleRate: Float
+    
+    var frequency: Float = 432 // la 432Hz
+    var amplitude: Float = 1
+    var phase: Float = 0
+    var phaseIncrement: Float
+    
+    var oscillator: AVAudioSourceNode!
     
     init() {
+        self.outputFormat = self.engine.outputNode.outputFormat(forBus: 0)
+        self.inputFormat = AVAudioFormat(commonFormat: outputFormat.commonFormat,
+                                    sampleRate: outputFormat.sampleRate,
+                                    channels: 1,
+                                    interleaved: outputFormat.isInterleaved)
+        self.sampleRate = Float(outputFormat.sampleRate)
+        self.phaseIncrement = (TWO_PI / sampleRate) * frequency
         
-        
-        var engine = AVAudioEngine()
-        
-        var outputFormat = engine.outputNode.outputFormat(forBus: 0)
-        var inputFormat = AVAudioFormat(commonFormat: outputFormat.commonFormat,
-                                        sampleRate: outputFormat.sampleRate,
-                                        channels: 1,
-                                        interleaved: outputFormat.isInterleaved)
-        
-        var frequency: Float = 432 // la 432Hz
-        var amplitude: Float = 1
-        var sampleRate: Float = Float(outputFormat.sampleRate)
-        var phase: Float = 0
-        let phaseIncrement: Float = (Float.pi * 2 / Float(outputFormat.sampleRate)) * frequency
-        var oscillator = AVAudioSourceNode { (_, _, frameCount, bufferPointer) -> OSStatus in
+        setupOscillator()
+        setupEngine()
+        startEngine()
+    }
+    
+    func setupOscillator() {
+        self.oscillator = AVAudioSourceNode { (_, _, frameCount, bufferPointer) -> OSStatus in
             
             let audioBufferList = UnsafeMutableAudioBufferListPointer(bufferPointer)
             
             // para cada frame do packet
             for frame in 0..<Int(frameCount) {
-                var value = sin(phase) * amplitude // senoide por enquanto
+                let value = sin(self.phase) * self.amplitude // senoide por enquanto
                 
-                phase += phaseIncrement
+                self.phase += self.phaseIncrement
                 // TODO: fazer sempre ficar entre 0 2 2pi
                 
                 // para cada canal do frame (no caso é só 1 mesmo)
@@ -45,16 +57,20 @@ class Synth {
             }
             return noErr
         }
-        
-        engine.attach(oscillator)
-        engine.connect(oscillator, to: engine.mainMixerNode, format: inputFormat)
-        engine.connect(engine.mainMixerNode, to: engine.outputNode, format: outputFormat)
-        engine.mainMixerNode.outputVolume = 0.5
-        
+    }
+    
+    func setupEngine() {
+        self.engine.attach(oscillator)
+        self.engine.connect(oscillator, to: engine.mainMixerNode, format: inputFormat)
+        self.engine.connect(engine.mainMixerNode, to: engine.outputNode, format: outputFormat)
+        self.engine.mainMixerNode.outputVolume = 0.5
+    }
+    
+    func startEngine() {
         do {
-            try engine.start()
+            try self.engine.start()
             Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { (_) in
-                engine.stop()
+                self.engine.stop()
             }
         } catch {
             print("Unable to start engine due to error: \(error)")
