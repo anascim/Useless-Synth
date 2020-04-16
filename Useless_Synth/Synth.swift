@@ -8,6 +8,7 @@
 import AVFoundation
 
 let TWO_PI = Float.pi * 2
+let PI = Float.pi
 
 class Synth {
     
@@ -16,12 +17,57 @@ class Synth {
     let inputFormat: AVAudioFormat?
     let sampleRate: Float
     
+     // de c3 a c6
+    let C: [Float] = [130.81, 261.62, 523.24, 1046.5]
+    let CS: [Float] = [138.59, 277.18, 554.37]
+    let D: [Float] = [146.83, 293.66, 587.32]
+    let DS: [Float] = [155.56, 311.13, 622.25]
+    let E: [Float] = [164.81, 329.62, 659.24]
+    let F: [Float] = [174.61, 349.23, 523.25]
+    let FS: [Float] = [185, 370, 740]
+    let G: [Float] = [196, 392, 784]
+    let GS: [Float] = [207.18, 415.30, 830.61]
+    let A: [Float] = [220, 440, 880]
+    let AS: [Float] = [233.08, 466.16, 932.33]
+    let B: [Float] = [246.94, 493.88, 987.77]
+    
+    lazy var CPentatonic: [Float] = {
+        return C + D + E + FS + A
+    }()
+    
+    lazy var CMajor: [Float] = {
+        return C + D + E + F + G + A + B
+    }()
+    
     var frequency: Float = 432 // la 432Hz
     var amplitude: Float = 1
     var phase: Float = 0
     var phaseIncrement: Float
+    var randomInterval: Double {
+        Double.random(in: Double.random(in: 0.1...0.5)...Double.random(in: 0.6...2))
+    }
     
     var oscillator: AVAudioSourceNode!
+    
+    // Signal waves... phase is supposed to be a radian value. The returns are on a range [-1...1]
+    var sineWave = { (phase: Float) -> Float in
+        return sin(phase)
+    }
+    
+    var triangleWave = { (phase: Float) -> Float in
+        return (phase/TWO_PI)
+    }
+    
+    var squareWave = { (phase: Float) -> Float in
+        return step(phase, edge: PI) * 2.0 - 1.0
+    }
+    
+    var randomSignal: (Float) -> Float {
+        return [sineWave, squareWave, triangleWave].randomElement()!
+    }
+    
+    
+    var signal: (Float) -> Float
     
     init() {
         self.outputFormat = self.engine.outputNode.outputFormat(forBus: 0)
@@ -31,6 +77,8 @@ class Synth {
                                     interleaved: outputFormat.isInterleaved)
         self.sampleRate = Float(outputFormat.sampleRate)
         self.phaseIncrement = (TWO_PI / sampleRate) * frequency
+        print(phaseIncrement)
+        self.signal = triangleWave
         
         setupOscillator()
         setupEngine()
@@ -44,10 +92,9 @@ class Synth {
             
             // para cada frame do packet
             for frame in 0..<Int(frameCount) {
-                let value = sin(self.phase) * self.amplitude // senoide por enquanto
+                let value = self.signal(self.phase) * self.amplitude // senoide por enquanto
                 
-                self.phase += self.phaseIncrement
-                // TODO: fazer sempre ficar entre 0 2 2pi
+                self.phase = modulus(self.phase + self.phaseIncrement, TWO_PI)
                 
                 // para cada canal do frame (no caso é só 1 mesmo)
                 for buffer in audioBufferList {
@@ -66,14 +113,25 @@ class Synth {
         self.engine.mainMixerNode.outputVolume = 0.5
     }
     
+    func updatePhaseIncrement() {
+        self.phaseIncrement = (TWO_PI / sampleRate) * frequency
+    }
+    
     func startEngine() {
         do {
             try self.engine.start()
-            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { (_) in
-                self.engine.stop()
+            Timer.scheduledTimer(withTimeInterval: randomInterval, repeats: true) { (_) in
+                self.frequency = self.CPentatonic.randomElement()!
+                self.signal =  self.randomSignal
+                self.updatePhaseIncrement()
+                
             }
         } catch {
             print("Unable to start engine due to error: \(error)")
         }
+    }
+    
+    func stopEngine() {
+        self.engine.stop()
     }
 }

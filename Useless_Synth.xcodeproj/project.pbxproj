@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C6940622448D47300FD3ABF /* MathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6940612448D47300FD3ABF /* MathExtensions.swift */; };
 		8CF3339124477C380054958D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF3339024477C380054958D /* AppDelegate.swift */; };
 		8CF3339324477C380054958D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF3339224477C380054958D /* SceneDelegate.swift */; };
 		8CF3339524477C380054958D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF3339424477C380054958D /* ContentView.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8C6940612448D47300FD3ABF /* MathExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MathExtensions.swift; path = "../../Lockpicking 13.45.40/Lockpicking WatchKit Extension/MathExtensions.swift"; sourceTree = "<group>"; };
 		8CF3338D24477C380054958D /* Useless_Synth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Useless_Synth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CF3339024477C380054958D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8CF3339224477C380054958D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				8CF3339024477C380054958D /* AppDelegate.swift */,
 				8CF3339224477C380054958D /* SceneDelegate.swift */,
 				8CF333A424477FCE0054958D /* Synth.swift */,
+				8C6940612448D47300FD3ABF /* MathExtensions.swift */,
 				8CF3339424477C380054958D /* ContentView.swift */,
 				8CF3339624477C3E0054958D /* Assets.xcassets */,
 				8CF3339B24477C3E0054958D /* LaunchScreen.storyboard */,
@@ -153,6 +156,7 @@
 				8CF3339124477C380054958D /* AppDelegate.swift in Sources */,
 				8CF3339324477C380054958D /* SceneDelegate.swift in Sources */,
 				8CF3339524477C380054958D /* ContentView.swift in Sources */,
+				8C6940622448D47300FD3ABF /* MathExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
