@@ -9,14 +9,38 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    var synth = Synth()
+    @State var isPlaying = false
+    
     var body: some View {
-        HStack {
-            Text("Hey Synth")
-                .font(.title)
-                .fontWeight(.heavy)
-                .foregroundColor(.blue)
-                .padding(20)
-            Spacer()
+        Button(action: {
+            self.synth.toggleEngine()
+            self.isPlaying.toggle()
+        }) {
+            if isPlaying {
+                HStack {
+                    Image(systemName: "stop.fill")
+                    Text("Stop")
+                        .fontWeight(.medium)
+                }
+                .padding()
+                .foregroundColor(.white)
+                .background(LinearGradient(gradient: Gradient(colors: [.red, .orange]), startPoint: .leading, endPoint: .trailing))
+                .font(.largeTitle)
+                .cornerRadius(20)
+            } else {
+                HStack{
+                    Image(systemName: "play.fill")
+                    Text("Play")
+                        .fontWeight(.medium)
+                }
+                .padding()
+                .foregroundColor(.white)
+                .background(LinearGradient(gradient: Gradient(colors: [.green, .blue]), startPoint: .leading, endPoint: .trailing))
+                .font(.largeTitle)
+                .cornerRadius(20)
+            }
         }
     }
 }

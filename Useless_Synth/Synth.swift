@@ -16,6 +16,7 @@ class Synth {
     let outputFormat: AVAudioFormat
     let inputFormat: AVAudioFormat?
     let sampleRate: Float
+    var isRunning: Bool = false
     
      // de c3 a c6
     let C: [Float] = [130.81, 261.62, 523.24, 1046.5]
@@ -82,7 +83,7 @@ class Synth {
         
         setupOscillator()
         setupEngine()
-        startEngine()
+//        startEngine()
     }
     
     func setupOscillator() {
@@ -120,18 +121,29 @@ class Synth {
     func startEngine() {
         do {
             try self.engine.start()
-            Timer.scheduledTimer(withTimeInterval: randomInterval, repeats: true) { (_) in
+            self.isRunning = true
+            Timer.scheduledTimer(withTimeInterval: randomInterval, repeats: true) { (timer) in
+                if !self.isRunning { timer.invalidate(); return }
                 self.frequency = self.CPentatonic.randomElement()!
                 self.signal =  self.randomSignal
                 self.updatePhaseIncrement()
-                
             }
         } catch {
+            self.isRunning = false
             print("Unable to start engine due to error: \(error)")
         }
     }
     
     func stopEngine() {
         self.engine.stop()
+        self.isRunning = false
+    }
+    
+    func toggleEngine() {
+        if isRunning {
+            stopEngine()
+        } else {
+            startEngine()
+        }
     }
 }
